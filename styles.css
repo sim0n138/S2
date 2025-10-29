@@ -490,6 +490,10 @@ body {
     color: #ff4444;
 }
 
+.result-title.draw {
+    color: #64B5F6;
+}
+
 @keyframes resultPulse {
     0%, 100% { transform: scale(1) rotate(-2deg); }
     50% { transform: scale(1.1) rotate(2deg); }
