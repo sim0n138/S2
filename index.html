@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WoW Pixel Duels</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="title-screen" class="screen active">
+            <h1 class="pixel-title">WOW PIXEL DUELS</h1>
+            <div class="class-selection">
+                <h2>Выберите класс:</h2>
+                <div class="class-cards">
+                    <div class="class-card" data-class="warrior">
+                        <div class="class-icon">⚔️</div>
+                        <h3>ВОИН</h3>
+                        <p>Мастер ближнего боя</p>
+                        <div class="class-stats">
+                            <span>HP: ★★★★★</span>
+                            <span>Урон: ★★★★</span>
+                            <span>Защита: ★★★★★</span>
+                        </div>
+                    </div>
+                    <div class="class-card" data-class="mage">
+                        <div class="class-icon">🔮</div>
+                        <h3>МАГ</h3>
+                        <p>Повелитель магии</p>
+                        <div class="class-stats">
+                            <span>HP: ★★★</span>
+                            <span>Урон: ★★★★★</span>
+                            <span>Мана: ★★★★★</span>
+                        </div>
+                    </div>
+                    <div class="class-card" data-class="priest">
+                        <div class="class-icon">✨</div>
+                        <h3>ЖРЕЦ</h3>
+                        <p>Целитель и защитник</p>
+                        <div class="class-stats">
+                            <span>HP: ★★★★</span>
+                            <span>Исцеление: ★★★★★</span>
+                            <span>Мана: ★★★★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="battle-screen" class="screen">
+            <div class="battle-arena">
+                <div class="character-container player-side">
+                    <div class="character-info">
+                        <div class="character-name">Игрок</div>
+                        <div class="health-bar-container">
+                            <div class="bar-label">HP</div>
+                            <div class="health-bar">
+                                <div class="health-bar-fill" id="player-hp"></div>
+                                <span class="bar-text" id="player-hp-text">100/100</span>
+                            </div>
+                        </div>
+                        <div class="mana-bar-container">
+                            <div class="bar-label">MANA</div>
+                            <div class="mana-bar">
+                                <div class="mana-bar-fill" id="player-mana"></div>
+                                <span class="bar-text" id="player-mana-text">100/100</span>
+                            </div>
+                        </div>
+                        <div class="buffs-container" id="player-buffs"></div>
+                    </div>
+                    <div class="character-sprite" id="player-sprite">
+                        <div class="pixel-character player"></div>
+                    </div>
+                </div>
+
+                <div class="vs-indicator">VS</div>
+
+                <div class="character-container enemy-side">
+                    <div class="character-sprite" id="enemy-sprite">
+                        <div class="pixel-character enemy"></div>
+                    </div>
+                    <div class="character-info">
+                        <div class="character-name">Противник</div>
+                        <div class="health-bar-container">
+                            <div class="bar-label">HP</div>
+                            <div class="health-bar">
+                                <div class="health-bar-fill" id="enemy-hp"></div>
+                                <span class="bar-text" id="enemy-hp-text">100/100</span>
+                            </div>
+                        </div>
+                        <div class="mana-bar-container">
+                            <div class="bar-label">MANA</div>
+                            <div class="mana-bar">
+                                <div class="mana-bar-fill" id="enemy-mana"></div>
+                                <span class="bar-text" id="enemy-mana-text">100/100</span>
+                            </div>
+                        </div>
+                        <div class="buffs-container" id="enemy-buffs"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="combat-log" id="combat-log">
+                <div class="log-entry">Битва началась!</div>
+            </div>
+
+            <div class="abilities-panel">
+                <div id="abilities-container"></div>
+            </div>
+        </div>
+
+        <div id="victory-screen" class="screen">
+            <h1 class="result-title" id="result-title">ПОБЕДА!</h1>
+            <button class="btn-restart" onclick="location.reload()">Играть снова</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
