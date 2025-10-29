@@ -510,7 +510,15 @@ class Game {
         // Update cooldowns and buffs
         this.updateCooldowns(this.enemy);
         this.enemy.updateBuffsAndDebuffs();
+        if (!this.enemy.isAlive) {
+            this.endBattle(true);
+            return;
+        }
         this.enemy.regenerateMana();
+        if (!this.enemy.isAlive) {
+            this.endBattle(true);
+            return;
+        }
 
         if (!this.enemy.canAct()) {
             this.addLog(`${this.enemy.name} не может действовать!`);
@@ -575,7 +583,15 @@ class Game {
         // Update cooldowns and buffs for player
         this.updateCooldowns(this.player);
         this.player.updateBuffsAndDebuffs();
+        if (!this.player.isAlive) {
+            this.endBattle(false);
+            return;
+        }
         this.player.regenerateMana();
+        if (!this.player.isAlive) {
+            this.endBattle(false);
+            return;
+        }
 
         this.updateUI();
     }
