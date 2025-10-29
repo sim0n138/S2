@@ -54,14 +54,14 @@
                         <div class="character-name">Игрок</div>
                         <div class="health-bar-container">
                             <div class="bar-label">HP</div>
-                            <div class="health-bar">
+                            <div class="health-bar" role="progressbar" aria-label="Здоровье игрока" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
                                 <div class="health-bar-fill" id="player-hp"></div>
                                 <span class="bar-text" id="player-hp-text">100/100</span>
                             </div>
                         </div>
                         <div class="mana-bar-container">
                             <div class="bar-label">MANA</div>
-                            <div class="mana-bar">
+                            <div class="mana-bar" role="progressbar" aria-label="Мана игрока" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
                                 <div class="mana-bar-fill" id="player-mana"></div>
                                 <span class="bar-text" id="player-mana-text">100/100</span>
                             </div>
@@ -100,12 +100,26 @@
                 </div>
             </div>
 
-            <div class="combat-log" id="combat-log">
+            <div class="turn-indicator" id="turn-indicator" role="status" aria-live="polite">
+                <div class="turn-text">Ваш ход</div>
+            </div>
+
+            <div class="combat-log" id="combat-log" role="log" aria-live="polite" aria-label="Боевой лог">
                 <div class="log-entry">Битва началась!</div>
             </div>
 
-            <div class="abilities-panel">
+            <div class="abilities-panel" role="toolbar" aria-label="Способности персонажа">
                 <div id="abilities-container"></div>
+            </div>
+
+            <!-- Pause Menu -->
+            <div id="pause-overlay" class="pause-overlay hidden">
+                <div class="pause-menu">
+                    <h2 class="pause-title">ПАУЗА</h2>
+                    <button class="pause-btn" id="resume-btn">Продолжить</button>
+                    <button class="pause-btn" id="restart-battle-btn">Начать заново</button>
+                    <div class="pause-hint">ESC - пауза/продолжить</div>
+                </div>
             </div>
         </div>
 
