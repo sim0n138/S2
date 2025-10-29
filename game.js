@@ -268,9 +268,7 @@
                 return 0;
             } else {
                 remainingDamage -= shieldBuff.absorbAmount;
-                if (this.game) {
-                    this.game.addLog(`Щит ${this.name} разрушен!`, 'damage');
-                }
+                callGameMethod('addLog', `Щит ${this.name} разрушен!`, 'damage');
                 this.removeBuff(shieldBuff);
             }
         }
@@ -281,9 +279,7 @@
             const manaToUse = Math.min(remainingDamage, this.mana);
             this.mana -= manaToUse;
             remainingDamage -= manaToUse;
-            if (this.game) {
-                this.game.addLog(`${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
-            }
+            callGameMethod('addLog', `${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
             if (remainingDamage <= 0) return 0;
         }
 
@@ -323,9 +319,7 @@
             return;
         }
         this.buffs.push(buff);
-        if (this.game) {
-            this.game.updateBuffs(this);
-        }
+        callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -340,9 +334,7 @@
         const index = this.buffs.indexOf(buff);
         if (index > -1) {
             this.buffs.splice(index, 1);
-            if (this.game) {
-                this.game.updateBuffs(this);
-            }
+            callGameMethod('updateBuffs', this);
         }
     }
 
@@ -356,9 +348,7 @@
             return;
         }
         this.debuffs.push(debuff);
-        if (this.game) {
-            this.game.updateBuffs(this);
-        }
+        callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -370,9 +360,7 @@
         this.buffs = this.buffs.filter(buff => {
             buff.duration--;
             if (buff.duration <= 0) {
-                if (this.game) {
-                    this.game.addLog(`${buff.name} на ${this.name} закончился`, 'buff');
-                }
+                callGameMethod('addLog', `${buff.name} на ${this.name} закончился`, 'buff');
                 return false;
             }
             return true;
@@ -382,10 +370,8 @@
         this.debuffs = this.debuffs.filter(debuff => {
             if (debuff.type === 'dot') {
                 this.takeDamage(debuff.damagePerTick);
-                if (this.game) {
-                    this.game.addLog(`${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
-                    this.game.showDamageNumber(this, debuff.damagePerTick, false);
-                }
+                callGameMethod('addLog', `${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
+                callGameMethod('showDamageNumber', this, debuff.damagePerTick, false);
             }
 
             debuff.duration--;
@@ -395,9 +381,7 @@
             return true;
         });
 
-        if (this.game) {
-            this.game.updateBuffs(this);
-        }
+        callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -769,7 +753,15 @@ class Game {
         // Update cooldowns and buffs
         this.updateCooldowns(this.enemy);
         this.enemy.updateBuffsAndDebuffs();
+        if (!this.enemy.isAlive) {
+            this.endBattle(true);
+            return;
+        }
         this.enemy.regenerateMana();
+        if (!this.enemy.isAlive) {
+            this.endBattle(true);
+            return;
+        }
 
         // Check if enemy died from DoT
         if (!this.enemy.isAlive) {
@@ -840,7 +832,15 @@ class Game {
         // Update cooldowns and buffs for player
         this.updateCooldowns(this.player);
         this.player.updateBuffsAndDebuffs();
+        if (!this.player.isAlive) {
+            this.endBattle(false);
+            return;
+        }
         this.player.regenerateMana();
+        if (!this.player.isAlive) {
+            this.endBattle(false);
+            return;
+        }
 
         // Check if player died from DoT
         if (!this.player.isAlive) {
@@ -923,7 +923,7 @@ class Game {
     }
 
     updateUI() {
-        // Update player stats
+        // Update player panel
         const playerHpPercent = (this.player.hp / this.player.maxHp) * 100;
         document.getElementById('player-hp').style.width = playerHpPercent + '%';
         document.getElementById('player-hp-text').textContent = `${Math.floor(this.player.hp)}/${this.player.maxHp}`;
@@ -932,7 +932,7 @@ class Game {
         document.getElementById('player-mana').style.width = playerManaPercent + '%';
         document.getElementById('player-mana-text').textContent = `${Math.floor(this.player.mana)}/${this.player.maxMana}`;
 
-        // Update enemy stats
+        // Update enemy panel
         const enemyHpPercent = (this.enemy.hp / this.enemy.maxHp) * 100;
         document.getElementById('enemy-hp').style.width = enemyHpPercent + '%';
         document.getElementById('enemy-hp-text').textContent = `${Math.floor(this.enemy.hp)}/${this.enemy.maxHp}`;
@@ -1083,5 +1083,13 @@ class Game {
 document.addEventListener('DOMContentLoaded', () => {
     new Game();
 });
+// Initialize game when DOM is loaded (browser environment)
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        game = new Game();
+    });
+}
 
-})(); // End of IIFE
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { Character };
+}
