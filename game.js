@@ -288,7 +288,7 @@ class Character {
     }
 
     canAct() {
-        return !this.isStunned() && !this.isFrozen();
+        return this.isAlive && !this.isStunned() && !this.isFrozen();
     }
 
     regenerateMana() {
@@ -303,6 +303,12 @@ class Game {
         this.currentScreen = 'title';
         this.turnTimer = null;
         this.combatLogMaxEntries = 50;
+
+        // Stalemate detection
+        this.turnsWithoutDamage = 0;
+        this.maxTurnsWithoutDamage = 10;
+        this.lastPlayerHp = 0;
+        this.lastEnemyHp = 0;
 
         this.init();
     }
@@ -343,6 +349,11 @@ class Game {
         const classes = ['warrior', 'mage', 'priest'];
         const enemyClass = classes[Math.floor(Math.random() * classes.length)];
         this.enemy = new Character('Противник', enemyClass, false);
+
+        // Initialize stalemate detection
+        this.turnsWithoutDamage = 0;
+        this.lastPlayerHp = this.player.hp;
+        this.lastEnemyHp = this.enemy.hp;
 
         this.switchScreen('battle');
         this.renderAbilities();
@@ -512,6 +523,12 @@ class Game {
         this.enemy.updateBuffsAndDebuffs();
         this.enemy.regenerateMana();
 
+        // Check if enemy died from DoT
+        if (!this.enemy.isAlive) {
+            this.endBattle(true);
+            return;
+        }
+
         if (!this.enemy.canAct()) {
             this.addLog(`${this.enemy.name} не может действовать!`);
             this.playerTurnEnd();
@@ -577,7 +594,37 @@ class Game {
         this.player.updateBuffsAndDebuffs();
         this.player.regenerateMana();
 
+        // Check if player died from DoT
+        if (!this.player.isAlive) {
+            this.endBattle(false);
+            return;
+        }
+
         this.updateUI();
+
+        // Check for stalemate (no damage dealt for N turns)
+        if (this.player.hp === this.lastPlayerHp && this.enemy.hp === this.lastEnemyHp) {
+            this.turnsWithoutDamage++;
+            if (this.turnsWithoutDamage >= this.maxTurnsWithoutDamage) {
+                this.addLog(`${this.maxTurnsWithoutDamage} ходов без урона - ничья!`, 'buff');
+                this.endBattle(null); // null means draw
+                return;
+            }
+        } else {
+            this.turnsWithoutDamage = 0;
+        }
+
+        // Update HP tracking for stalemate detection
+        this.lastPlayerHp = this.player.hp;
+        this.lastEnemyHp = this.enemy.hp;
+
+        // If player can't act (stunned/frozen), auto-skip to enemy turn
+        if (!this.player.canAct()) {
+            this.addLog(`${this.player.name} не может действовать - ход пропущен!`, 'buff');
+            setTimeout(() => {
+                this.enemyTurn();
+            }, 1000);
+        }
     }
 
     updateCooldowns(character) {
@@ -747,11 +794,18 @@ class Game {
     }
 
     endBattle(playerWon) {
-        this.addLog(playerWon ? 'Вы победили!' : 'Вы проиграли!');
+        if (playerWon === null) {
+            this.addLog('Ничья!');
+        } else {
+            this.addLog(playerWon ? 'Вы победили!' : 'Вы проиграли!');
+        }
 
         setTimeout(() => {
             const resultTitle = document.getElementById('result-title');
-            if (playerWon) {
+            if (playerWon === null) {
+                resultTitle.textContent = 'НИЧЬЯ!';
+                resultTitle.className = 'result-title draw';
+            } else if (playerWon) {
                 resultTitle.textContent = 'ПОБЕДА!';
                 resultTitle.className = 'result-title victory';
             } else {
