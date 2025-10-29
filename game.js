@@ -1,4 +1,12 @@
 // WoW Pixel Duels - Game Engine
+let game;
+
+function callGameMethod(method, ...args) {
+    if (game && typeof game[method] === 'function') {
+        game[method](...args);
+    }
+}
+
 class Character {
     constructor(name, className, isPlayer = false) {
         this.name = name;
@@ -195,14 +203,14 @@ class Character {
         if (shieldBuff) {
             if (shieldBuff.absorbAmount >= remainingDamage) {
                 shieldBuff.absorbAmount -= remainingDamage;
-                game.addLog(`${this.name} поглотил ${remainingDamage} урона щитом!`, 'buff');
+                callGameMethod('addLog', `${this.name} поглотил ${remainingDamage} урона щитом!`, 'buff');
                 if (shieldBuff.absorbAmount <= 0) {
                     this.removeBuff(shieldBuff);
                 }
                 return 0;
             } else {
                 remainingDamage -= shieldBuff.absorbAmount;
-                game.addLog(`Щит ${this.name} разрушен!`, 'damage');
+                callGameMethod('addLog', `Щит ${this.name} разрушен!`, 'damage');
                 this.removeBuff(shieldBuff);
             }
         }
@@ -213,7 +221,7 @@ class Character {
             const manaToUse = Math.min(remainingDamage, this.mana);
             this.mana -= manaToUse;
             remainingDamage -= manaToUse;
-            game.addLog(`${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
+            callGameMethod('addLog', `${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
             if (remainingDamage <= 0) return 0;
         }
 
@@ -234,20 +242,20 @@ class Character {
 
     addBuff(buff) {
         this.buffs.push(buff);
-        game.updateBuffs(this);
+        callGameMethod('updateBuffs', this);
     }
 
     removeBuff(buff) {
         const index = this.buffs.indexOf(buff);
         if (index > -1) {
             this.buffs.splice(index, 1);
-            game.updateBuffs(this);
+            callGameMethod('updateBuffs', this);
         }
     }
 
     addDebuff(debuff) {
         this.debuffs.push(debuff);
-        game.updateBuffs(this);
+        callGameMethod('updateBuffs', this);
     }
 
     updateBuffsAndDebuffs() {
@@ -255,7 +263,7 @@ class Character {
         this.buffs = this.buffs.filter(buff => {
             buff.duration--;
             if (buff.duration <= 0) {
-                game.addLog(`${buff.name} на ${this.name} закончился`, 'buff');
+                callGameMethod('addLog', `${buff.name} на ${this.name} закончился`, 'buff');
                 return false;
             }
             return true;
@@ -265,8 +273,8 @@ class Character {
         this.debuffs = this.debuffs.filter(debuff => {
             if (debuff.type === 'dot') {
                 this.takeDamage(debuff.damagePerTick);
-                game.addLog(`${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
-                game.showDamageNumber(this, debuff.damagePerTick, false);
+                callGameMethod('addLog', `${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
+                callGameMethod('showDamageNumber', this, debuff.damagePerTick, false);
             }
 
             debuff.duration--;
@@ -276,7 +284,7 @@ class Character {
             return true;
         });
 
-        game.updateBuffs(this);
+        callGameMethod('updateBuffs', this);
     }
 
     isStunned() {
@@ -780,8 +788,13 @@ class Game {
     }
 }
 
-// Initialize game when DOM is loaded
-let game;
-document.addEventListener('DOMContentLoaded', () => {
-    game = new Game();
-});
+// Initialize game when DOM is loaded (browser environment)
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        game = new Game();
+    });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { Character };
+}
