@@ -1079,9 +1079,9 @@ class Game {
     }
 }
 
-    // Initialize game when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-        new Game();
-    });
+// Initialize game when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new Game();
+});
 
 })(); // End of IIFE
