@@ -448,6 +448,11 @@ body {
     padding: 0.5rem;
 }
 
+.ability-btn:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
 .ability-btn:hover:not(.on-cooldown):not(:disabled) {
     transform: scale(1.1);
     border-color: #fff;
@@ -464,10 +469,26 @@ body {
     border-color: #666;
 }
 
+.ability-btn.insufficient-mana {
+    border-color: #1976D2;
+    box-shadow: inset 0 0 10px rgba(33, 150, 243, 0.4);
+}
+
 .ability-btn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
     border-color: #444;
+}
+
+.ability-meta {
+    display: flex;
+    gap: 0.3rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+}
+
+.ability-cooldown-meta {
+    color: #ffb347;
 }
 
 .ability-icon {
@@ -483,6 +504,63 @@ body {
 .ability-cost {
     font-size: 0.7rem;
     color: #64B5F6;
+}
+
+.ability-tooltip {
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 15, 30, 0.95);
+    border: 2px solid #ffd700;
+    padding: 0.6rem 0.8rem;
+    width: 220px;
+    display: none;
+    flex-direction: column;
+    gap: 0.4rem;
+    box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    z-index: 10;
+    text-align: left;
+}
+
+.ability-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px;
+    border-style: solid;
+    border-color: #ffd700 transparent transparent transparent;
+}
+
+.ability-btn:hover .ability-tooltip,
+.ability-btn:focus-visible .ability-tooltip {
+    display: flex;
+}
+
+.tooltip-title {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: 0.85rem;
+}
+
+.tooltip-description {
+    font-size: 0.75rem;
+    color: #e0e0e0;
+}
+
+.tooltip-list {
+    padding-left: 1rem;
+    font-size: 0.7rem;
+    color: #bdbdbd;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.tooltip-list li::marker {
+    color: #ffd700;
 }
 
 .ability-cooldown {
