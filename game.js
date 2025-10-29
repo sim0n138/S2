@@ -1,28 +1,57 @@
 // WoW Pixel Duels - Game Engine
-let game;
+(function() {
+    'use strict';
 
-function callGameMethod(method, ...args) {
-    if (game && typeof game[method] === 'function') {
-        game[method](...args);
-    }
-}
+    // Game Configuration Constants
+    const CONFIG = {
+        // Combat
+        CRIT_CHANCE: 0.25,
+        CRIT_MULTIPLIER: 1.5,
+        MANA_REGEN_PER_TURN: 10,
 
-class Character {
-    constructor(name, className, isPlayer = false) {
-        this.name = name;
-        this.className = className;
-        this.isPlayer = isPlayer;
-        this.maxHp = 1000;
-        this.hp = 1000;
-        this.maxMana = 100;
-        this.mana = 100;
-        this.abilities = [];
-        this.buffs = [];
-        this.debuffs = [];
-        this.isAlive = true;
+        // Shield absorb amounts
+        WARRIOR_SHIELD_ABSORB: 300,
+        PRIEST_SHIELD_ABSORB: 500,
 
-        this.initializeClass();
-    }
+        // DoT
+        DOT_DAMAGE_PER_TICK: 50,
+        DOT_DURATION: 4,
+
+        // Stun/Freeze durations
+        STUN_DURATION: 1,
+        FREEZE_DURATION: 2,
+
+        // Stalemate detection
+        MAX_TURNS_WITHOUT_DAMAGE: 10,
+
+        // UI
+        COMBAT_LOG_MAX_ENTRIES: 50,
+
+        // Timing (ms)
+        TURN_DELAY: 1000,
+        END_BATTLE_DELAY: 2000,
+        ATTACK_ANIMATION_DURATION: 300,
+        DAMAGE_NUMBER_DURATION: 1000,
+        PARTICLE_DURATION: 1000
+    };
+
+    class Character {
+        constructor(name, className, isPlayer = false, game = null) {
+            this.name = name;
+            this.className = className;
+            this.isPlayer = isPlayer;
+            this.game = game;
+            this.maxHp = 1000;
+            this.hp = 1000;
+            this.maxMana = 100;
+            this.mana = 100;
+            this.abilities = [];
+            this.buffs = [];
+            this.debuffs = [];
+            this.isAlive = true;
+
+            this.initializeClass();
+        }
 
     initializeClass() {
         switch(this.className) {
@@ -195,6 +224,12 @@ class Character {
     }
 
     takeDamage(damage, isCrit = false) {
+        // Input validation
+        if (typeof damage !== 'number' || isNaN(damage) || damage < 0) {
+            console.error('Invalid damage value:', damage);
+            return 0;
+        }
+
         // Check for shields
         let remainingDamage = damage;
 
@@ -203,7 +238,9 @@ class Character {
         if (shieldBuff) {
             if (shieldBuff.absorbAmount >= remainingDamage) {
                 shieldBuff.absorbAmount -= remainingDamage;
-                callGameMethod('addLog', `${this.name} поглотил ${remainingDamage} урона щитом!`, 'buff');
+                if (this.game) {
+                    this.game.addLog(`${this.name} поглотил ${remainingDamage} урона щитом!`, 'buff');
+                }
                 if (shieldBuff.absorbAmount <= 0) {
                     this.removeBuff(shieldBuff);
                 }
@@ -235,17 +272,31 @@ class Character {
     }
 
     heal(amount) {
+        // Input validation
+        if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
+            console.error('Invalid heal amount:', amount);
+            return 0;
+        }
+
         const actualHeal = Math.min(amount, this.maxHp - this.hp);
         this.hp = Math.min(this.maxHp, this.hp + amount);
         return actualHeal;
     }
 
     addBuff(buff) {
+        if (!buff || typeof buff !== 'object') {
+            console.error('Invalid buff:', buff);
+            return;
+        }
         this.buffs.push(buff);
         callGameMethod('updateBuffs', this);
     }
 
     removeBuff(buff) {
+        if (!buff) {
+            console.error('Invalid buff to remove:', buff);
+            return;
+        }
         const index = this.buffs.indexOf(buff);
         if (index > -1) {
             this.buffs.splice(index, 1);
@@ -254,6 +305,10 @@ class Character {
     }
 
     addDebuff(debuff) {
+        if (!debuff || typeof debuff !== 'object') {
+            console.error('Invalid debuff:', debuff);
+            return;
+        }
         this.debuffs.push(debuff);
         callGameMethod('updateBuffs', this);
     }
@@ -300,7 +355,7 @@ class Character {
     }
 
     regenerateMana() {
-        this.mana = Math.min(this.maxMana, this.mana + 10);
+        this.mana = Math.min(this.maxMana, this.mana + CONFIG.MANA_REGEN_PER_TURN);
     }
 }
 
@@ -310,11 +365,11 @@ class Game {
         this.enemy = null;
         this.currentScreen = 'title';
         this.turnTimer = null;
-        this.combatLogMaxEntries = 50;
+        this.combatLogMaxEntries = CONFIG.COMBAT_LOG_MAX_ENTRIES;
 
         // Stalemate detection
         this.turnsWithoutDamage = 0;
-        this.maxTurnsWithoutDamage = 10;
+        this.maxTurnsWithoutDamage = CONFIG.MAX_TURNS_WITHOUT_DAMAGE;
         this.lastPlayerHp = 0;
         this.lastEnemyHp = 0;
 
@@ -324,6 +379,7 @@ class Game {
     init() {
         this.setupClassSelection();
         this.setupKeyboardControls();
+        this.setupRestartButton();
     }
 
     setupClassSelection() {
@@ -350,13 +406,22 @@ class Game {
         });
     }
 
+    setupRestartButton() {
+        const restartBtn = document.getElementById('btn-restart');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                location.reload();
+            });
+        }
+    }
+
     startGame(playerClass) {
-        this.player = new Character('Игрок', playerClass, true);
+        this.player = new Character('Игрок', playerClass, true, this);
 
         // Random enemy class
         const classes = ['warrior', 'mage', 'priest'];
         const enemyClass = classes[Math.floor(Math.random() * classes.length)];
-        this.enemy = new Character('Противник', enemyClass, false);
+        this.enemy = new Character('Противник', enemyClass, false, this);
 
         // Initialize stalemate detection
         this.turnsWithoutDamage = 0;
@@ -409,6 +474,12 @@ class Game {
     }
 
     useAbility(caster, target, ability) {
+        // Input validation
+        if (!caster || !target || !ability) {
+            console.error('Invalid useAbility parameters:', { caster, target, ability });
+            return false;
+        }
+
         if (!caster.canAct()) {
             this.addLog(`${caster.name} не может действовать!`);
             return false;
@@ -435,8 +506,8 @@ class Game {
 
         // Apply ability effects
         if (ability.damage) {
-            const isCrit = Math.random() < 0.25; // 25% crit chance
-            const damage = isCrit ? Math.floor(ability.damage * 1.5) : ability.damage;
+            const isCrit = Math.random() < CONFIG.CRIT_CHANCE;
+            const damage = isCrit ? Math.floor(ability.damage * CONFIG.CRIT_MULTIPLIER) : ability.damage;
             const actualDamage = target.takeDamage(damage, isCrit);
 
             if (isCrit) {
@@ -465,9 +536,9 @@ class Game {
             };
 
             if (ability.buffType === 'shield') {
-                buff.absorbAmount = 300;
+                buff.absorbAmount = CONFIG.WARRIOR_SHIELD_ABSORB;
             } else if (ability.buffType === 'holyShield') {
-                buff.absorbAmount = 500;
+                buff.absorbAmount = CONFIG.PRIEST_SHIELD_ABSORB;
             }
 
             caster.addBuff(buff);
@@ -478,7 +549,7 @@ class Game {
             target.addDebuff({
                 name: 'Оглушение',
                 type: 'stun',
-                duration: 1,
+                duration: CONFIG.STUN_DURATION,
                 icon: '💫'
             });
             this.addLog(`${target.name} оглушён!`, 'buff');
@@ -488,7 +559,7 @@ class Game {
             target.addDebuff({
                 name: 'Заморожен',
                 type: 'freeze',
-                duration: 2,
+                duration: CONFIG.FREEZE_DURATION,
                 icon: '❄️'
             });
             this.addLog(`${target.name} заморожен!`, 'buff');
@@ -498,8 +569,8 @@ class Game {
             target.addDebuff({
                 name: ability.name,
                 type: 'dot',
-                duration: 4,
-                damagePerTick: 50,
+                duration: CONFIG.DOT_DURATION,
+                damagePerTick: CONFIG.DOT_DAMAGE_PER_TICK,
                 icon: '🔥'
             });
             this.addLog(`${target.name} горит от ${ability.name}!`, 'damage');
@@ -517,7 +588,7 @@ class Game {
         if (caster.isPlayer) {
             setTimeout(() => {
                 this.enemyTurn();
-            }, 1000);
+            }, CONFIG.TURN_DELAY);
         }
 
         return true;
@@ -601,7 +672,7 @@ class Game {
             if (this.player.isAlive && this.enemy.isAlive) {
                 this.playerTurnEnd();
             }
-        }, 1000);
+        }, CONFIG.TURN_DELAY);
     }
 
     playerTurnEnd() {
@@ -647,7 +718,7 @@ class Game {
             this.addLog(`${this.player.name} не может действовать - ход пропущен!`, 'buff');
             setTimeout(() => {
                 this.enemyTurn();
-            }, 1000);
+            }, CONFIG.TURN_DELAY);
         }
     }
 
@@ -764,7 +835,7 @@ class Game {
         pixelChar.classList.add('attacking');
         setTimeout(() => {
             pixelChar.classList.remove('attacking');
-        }, 300);
+        }, CONFIG.ATTACK_ANIMATION_DURATION);
     }
 
     showDamageNumber(character, amount, isCrit = false, isHeal = false) {
@@ -785,7 +856,7 @@ class Game {
 
         setTimeout(() => {
             damageNum.remove();
-        }, 1000);
+        }, CONFIG.DAMAGE_NUMBER_DURATION);
     }
 
     createParticles(character, color) {
@@ -813,7 +884,7 @@ class Game {
 
             setTimeout(() => {
                 particle.remove();
-            }, 1000);
+            }, CONFIG.PARTICLE_DURATION);
         }
     }
 
@@ -838,7 +909,7 @@ class Game {
             }
 
             this.switchScreen('victory');
-        }, 2000);
+        }, CONFIG.END_BATTLE_DELAY);
     }
 }
 
