@@ -35,7 +35,18 @@
         PARTICLE_DURATION: 1000
     };
 
+    /**
+     * Represents a character in the game (player or enemy)
+     * @class Character
+     */
     class Character {
+        /**
+         * Create a character
+         * @param {string} name - Character display name
+         * @param {string} className - Character class ('warrior', 'mage', 'priest')
+         * @param {boolean} [isPlayer=false] - Whether this is the player character
+         * @param {Game} [game=null] - Reference to the game instance
+         */
         constructor(name, className, isPlayer = false, game = null) {
             this.name = name;
             this.className = className;
@@ -53,6 +64,10 @@
             this.initializeClass();
         }
 
+    /**
+     * Initialize character stats and abilities based on class
+     * @private
+     */
     initializeClass() {
         switch(this.className) {
             case 'warrior':
@@ -223,6 +238,12 @@
         }
     }
 
+    /**
+     * Apply damage to character, accounting for shields
+     * @param {number} damage - Amount of damage to apply
+     * @param {boolean} [isCrit=false] - Whether this is a critical hit
+     * @returns {number} Actual damage dealt after shield absorption
+     */
     takeDamage(damage, isCrit = false) {
         // Input validation
         if (typeof damage !== 'number' || isNaN(damage) || damage < 0) {
@@ -275,6 +296,11 @@
         return remainingDamage;
     }
 
+    /**
+     * Heal character, capped at maximum HP
+     * @param {number} amount - Amount of HP to restore
+     * @returns {number} Actual amount healed (cannot exceed missing HP)
+     */
     heal(amount) {
         // Input validation
         if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
@@ -287,6 +313,10 @@
         return actualHeal;
     }
 
+    /**
+     * Add a buff (positive effect) to character
+     * @param {Object} buff - Buff object with name, type, duration, icon
+     */
     addBuff(buff) {
         if (!buff || typeof buff !== 'object') {
             console.error('Invalid buff:', buff);
@@ -298,6 +328,10 @@
         }
     }
 
+    /**
+     * Remove a buff from character
+     * @param {Object} buff - Buff object to remove
+     */
     removeBuff(buff) {
         if (!buff) {
             console.error('Invalid buff to remove:', buff);
@@ -312,6 +346,10 @@
         }
     }
 
+    /**
+     * Add a debuff (negative effect) to character
+     * @param {Object} debuff - Debuff object with name, type, duration, icon
+     */
     addDebuff(debuff) {
         if (!debuff || typeof debuff !== 'object') {
             console.error('Invalid debuff:', debuff);
@@ -323,6 +361,10 @@
         }
     }
 
+    /**
+     * Update buff/debuff durations and apply DoT effects
+     * Removes expired buffs and debuffs
+     */
     updateBuffsAndDebuffs() {
         // Update buffs
         this.buffs = this.buffs.filter(buff => {
@@ -358,30 +400,53 @@
         }
     }
 
+    /**
+     * Check if character is stunned
+     * @returns {boolean} True if character has a stun debuff
+     */
     isStunned() {
         return this.debuffs.some(d => d.type === 'stun');
     }
 
+    /**
+     * Check if character is frozen
+     * @returns {boolean} True if character has a freeze debuff
+     */
     isFrozen() {
         return this.debuffs.some(d => d.type === 'freeze');
     }
 
+    /**
+     * Check if character can perform actions
+     * @returns {boolean} True if character is alive and not stunned/frozen
+     */
     canAct() {
         return this.isAlive && !this.isStunned() && !this.isFrozen();
     }
 
+    /**
+     * Regenerate mana at the start of turn
+     */
     regenerateMana() {
         this.mana = Math.min(this.maxMana, this.mana + CONFIG.MANA_REGEN_PER_TURN);
     }
 }
 
+/**
+ * Main game controller class
+ * @class Game
+ */
 class Game {
+    /**
+     * Create game instance and initialize event listeners
+     */
     constructor() {
         this.player = null;
         this.enemy = null;
         this.currentScreen = 'title';
         this.turnTimer = null;
         this.combatLogMaxEntries = CONFIG.COMBAT_LOG_MAX_ENTRIES;
+        this.isPaused = false;
 
         // Stalemate detection
         this.turnsWithoutDamage = 0;
@@ -396,6 +461,7 @@ class Game {
         this.setupClassSelection();
         this.setupKeyboardControls();
         this.setupRestartButton();
+        this.setupPauseMenu();
     }
 
     setupClassSelection() {
@@ -410,7 +476,14 @@ class Game {
 
     setupKeyboardControls() {
         document.addEventListener('keydown', (e) => {
+            // ESC key for pause
+            if (e.key === 'Escape' && this.currentScreen === 'battle') {
+                this.togglePause();
+                return;
+            }
+
             if (this.currentScreen !== 'battle') return;
+            if (this.isPaused) return;
             if (!this.player || !this.player.canAct()) return;
 
             const key = e.key;
@@ -431,6 +504,44 @@ class Game {
         }
     }
 
+    /**
+     * Setup pause menu event listeners
+     */
+    setupPauseMenu() {
+        const resumeBtn = document.getElementById('resume-btn');
+        const restartBattleBtn = document.getElementById('restart-battle-btn');
+
+        if (resumeBtn) {
+            resumeBtn.addEventListener('click', () => {
+                this.togglePause();
+            });
+        }
+
+        if (restartBattleBtn) {
+            restartBattleBtn.addEventListener('click', () => {
+                location.reload();
+            });
+        }
+    }
+
+    /**
+     * Toggle pause state
+     */
+    togglePause() {
+        if (this.currentScreen !== 'battle') return;
+
+        this.isPaused = !this.isPaused;
+        const pauseOverlay = document.getElementById('pause-overlay');
+
+        if (pauseOverlay) {
+            if (this.isPaused) {
+                pauseOverlay.classList.remove('hidden');
+            } else {
+                pauseOverlay.classList.add('hidden');
+            }
+        }
+    }
+
     startGame(playerClass) {
         this.player = new Character('Игрок', playerClass, true, this);
 
@@ -447,6 +558,7 @@ class Game {
         this.switchScreen('battle');
         this.renderAbilities();
         this.updateUI();
+        this.updateTurnIndicator('player');
         this.addLog(`Битва началась! Вы - ${this.getClassName(playerClass)}, противник - ${this.getClassName(enemyClass)}!`);
         this.addLog('Используйте способности нажатием кнопок или клавиш 1-4');
     }
@@ -473,6 +585,7 @@ class Game {
         this.player.abilities.forEach(ability => {
             const btn = document.createElement('button');
             btn.className = 'ability-btn';
+            btn.setAttribute('aria-label', `${ability.name}: ${ability.description}. Стоимость: ${ability.manaCost} маны. Клавиша: ${ability.hotkey}`);
             btn.innerHTML = `
                 <div class="ability-hotkey">${ability.hotkey}</div>
                 <div class="ability-icon">${ability.icon}</div>
@@ -489,7 +602,44 @@ class Game {
         });
     }
 
+    /**
+     * Update turn indicator display
+     * @param {string} turn - Turn state ('player', 'enemy', 'waiting')
+     */
+    updateTurnIndicator(turn) {
+        const indicator = document.querySelector('.turn-text');
+        if (!indicator) return;
+
+        indicator.classList.remove('enemy-turn', 'waiting');
+
+        switch(turn) {
+            case 'player':
+                indicator.textContent = 'Ваш ход';
+                break;
+            case 'enemy':
+                indicator.textContent = 'Ход противника';
+                indicator.classList.add('enemy-turn');
+                break;
+            case 'waiting':
+                indicator.textContent = 'Ожидание...';
+                indicator.classList.add('waiting');
+                break;
+        }
+    }
+
+    /**
+     * Use an ability in combat
+     * @param {Character} caster - Character using the ability
+     * @param {Character} target - Character targeted by the ability
+     * @param {Object} ability - Ability object with damage, heal, buffs, debuffs, etc.
+     * @returns {boolean} True if ability was successfully used
+     */
     useAbility(caster, target, ability) {
+        // Check if game is paused
+        if (this.isPaused) {
+            return false;
+        }
+
         // Input validation
         if (!caster || !target || !ability) {
             console.error('Invalid useAbility parameters:', { caster, target, ability });
@@ -602,6 +752,7 @@ class Game {
 
         // If player turn, trigger enemy turn
         if (caster.isPlayer) {
+            this.updateTurnIndicator('waiting');
             setTimeout(() => {
                 this.enemyTurn();
             }, CONFIG.TURN_DELAY);
@@ -612,6 +763,8 @@ class Game {
 
     enemyTurn() {
         if (!this.enemy.isAlive || !this.player.isAlive) return;
+
+        this.updateTurnIndicator('enemy');
 
         // Update cooldowns and buffs
         this.updateCooldowns(this.enemy);
@@ -716,9 +869,13 @@ class Game {
         // If player can't act (stunned/frozen), auto-skip to enemy turn
         if (!this.player.canAct()) {
             this.addLog(`${this.player.name} не может действовать - ход пропущен!`, 'buff');
+            this.updateTurnIndicator('waiting');
             setTimeout(() => {
                 this.enemyTurn();
             }, CONFIG.TURN_DELAY);
+        } else {
+            // Player can act - show it's their turn
+            this.updateTurnIndicator('player');
         }
     }
 
@@ -810,6 +967,11 @@ class Game {
         });
     }
 
+    /**
+     * Add message to combat log
+     * @param {string} message - Log message text
+     * @param {string} [type=''] - Message type for styling ('damage', 'heal', 'buff', 'crit')
+     */
     addLog(message, type = '') {
         const log = document.getElementById('combat-log');
         const entry = document.createElement('div');
@@ -888,6 +1050,10 @@ class Game {
         }
     }
 
+    /**
+     * End the battle and show result screen
+     * @param {boolean|null} playerWon - True if player won, false if lost, null for draw
+     */
     endBattle(playerWon) {
         if (playerWon === null) {
             this.addLog('Ничья!');
