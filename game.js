@@ -640,7 +640,7 @@ class Game {
     }
 
     updateUI() {
-        // Update player stats
+        // Update player panel
         const playerHpPercent = (this.player.hp / this.player.maxHp) * 100;
         document.getElementById('player-hp').style.width = playerHpPercent + '%';
         document.getElementById('player-hp-text').textContent = `${Math.floor(this.player.hp)}/${this.player.maxHp}`;
@@ -649,7 +649,7 @@ class Game {
         document.getElementById('player-mana').style.width = playerManaPercent + '%';
         document.getElementById('player-mana-text').textContent = `${Math.floor(this.player.mana)}/${this.player.maxMana}`;
 
-        // Update enemy stats
+        // Update enemy panel
         const enemyHpPercent = (this.enemy.hp / this.enemy.maxHp) * 100;
         document.getElementById('enemy-hp').style.width = enemyHpPercent + '%';
         document.getElementById('enemy-hp-text').textContent = `${Math.floor(this.enemy.hp)}/${this.enemy.maxHp}`;
