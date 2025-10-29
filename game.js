@@ -585,21 +585,89 @@ class Game {
         this.player.abilities.forEach(ability => {
             const btn = document.createElement('button');
             btn.className = 'ability-btn';
-            btn.setAttribute('aria-label', `${ability.name}: ${ability.description}. Стоимость: ${ability.manaCost} маны. Клавиша: ${ability.hotkey}`);
+            btn.setAttribute('aria-label', this.getAbilityAriaLabel(ability));
+            btn.dataset.abilityId = ability.id;
+
+            const tooltipContent = this.getAbilityTooltipLines(ability)
+                .map(line => `<li>${line}</li>`) 
+                .join('');
+
             btn.innerHTML = `
                 <div class="ability-hotkey">${ability.hotkey}</div>
                 <div class="ability-icon">${ability.icon}</div>
                 <div class="ability-name">${ability.name}</div>
-                <div class="ability-cost">${ability.manaCost} маны</div>
+                <div class="ability-meta">
+                    <span class="ability-cost">${ability.manaCost} маны</span>
+                    <span class="ability-cooldown-meta">КД: ${ability.maxCooldown}</span>
+                </div>
+                <div class="ability-tooltip" role="tooltip">
+                    <div class="tooltip-title">${ability.name}</div>
+                    <p class="tooltip-description">${ability.description}</p>
+                    <ul class="tooltip-list">${tooltipContent}</ul>
+                </div>
             `;
 
             btn.addEventListener('click', () => {
                 this.useAbility(this.player, this.enemy, ability);
             });
 
-            btn.dataset.abilityId = ability.id;
             container.appendChild(btn);
         });
+    }
+
+    getAbilityAriaLabel(ability) {
+        const parts = [
+            `${ability.name}: ${ability.description}`,
+            `Стоимость: ${ability.manaCost} маны`,
+            `Перезарядка: ${ability.maxCooldown} ходов`
+        ];
+
+        const extra = this.getAbilityTooltipLines(ability);
+        if (extra.length) {
+            parts.push(`Эффекты: ${extra.join(', ')}`);
+        }
+
+        parts.push(`Клавиша: ${ability.hotkey}`);
+        return parts.join('. ');
+    }
+
+    getAbilityTooltipLines(ability) {
+        const lines = [];
+
+        if (ability.damage) {
+            lines.push(`Урон: ${ability.damage}`);
+        }
+
+        if (ability.heal) {
+            lines.push(`Исцеление: ${ability.heal}`);
+        }
+
+        if (ability.type === 'buff') {
+            if (ability.buffType === 'shield') {
+                lines.push(`Поглощение: ${CONFIG.WARRIOR_SHIELD_ABSORB}`);
+            }
+            if (ability.buffType === 'holyShield') {
+                lines.push(`Поглощение: ${CONFIG.PRIEST_SHIELD_ABSORB}`);
+            }
+            if (ability.buffType === 'manaShield') {
+                lines.push('Поглощает урон за счёт маны');
+            }
+            lines.push(`Длительность: ${ability.duration} ходов`);
+        }
+
+        if (ability.stun) {
+            lines.push(`Оглушение на ${CONFIG.STUN_DURATION} ход`);
+        }
+
+        if (ability.freeze) {
+            lines.push(`Заморозка на ${CONFIG.FREEZE_DURATION} хода`);
+        }
+
+        if (ability.dot) {
+            lines.push(`Ожог: ${CONFIG.DOT_DAMAGE_PER_TICK}/ход (${CONFIG.DOT_DURATION} хода)`);
+        }
+
+        return lines;
     }
 
     /**
@@ -805,6 +873,9 @@ class Game {
         // AI Strategy
         let chosenAbility = null;
 
+        const playerUnderControl = this.player.isStunned() || this.player.isFrozen();
+        const playerHasActiveDot = this.player.debuffs.some(d => d.type === 'dot');
+
         // Heal if low HP
         const healAbility = availableAbilities.find(a => a.heal);
         if (healAbility && this.enemy.hp < this.enemy.maxHp * 0.4) {
@@ -816,6 +887,34 @@ class Game {
             const shieldAbility = availableAbilities.find(a => a.type === 'buff');
             if (shieldAbility && !this.enemy.buffs.some(b => b.type === 'shield' || b.type === 'holyShield')) {
                 chosenAbility = shieldAbility;
+            }
+        }
+
+        // Try to finish off the player if possible
+        if (!chosenAbility) {
+            const killingAbility = availableAbilities
+                .filter(a => a.damage)
+                .sort((a, b) => b.damage - a.damage)
+                .find(a => a.damage >= this.player.hp);
+
+            if (killingAbility) {
+                chosenAbility = killingAbility;
+            }
+        }
+
+        // Apply control if the player is able to act
+        if (!chosenAbility && !playerUnderControl) {
+            const controlAbility = availableAbilities.find(a => a.stun || a.freeze);
+            if (controlAbility) {
+                chosenAbility = controlAbility;
+            }
+        }
+
+        // Apply DoT if target does not already have one
+        if (!chosenAbility && !playerHasActiveDot) {
+            const dotAbility = availableAbilities.find(a => a.dot);
+            if (dotAbility) {
+                chosenAbility = dotAbility;
             }
         }
 
@@ -926,15 +1025,13 @@ class Game {
                 btn.classList.remove('on-cooldown');
             }
 
-            if (this.player.mana < ability.manaCost) {
-                btn.disabled = true;
-            } else {
-                btn.disabled = false;
-            }
+            const lacksMana = this.player.mana < ability.manaCost;
+            const playerCanAct = this.player.canAct();
 
-            if (!this.player.canAct()) {
-                btn.disabled = true;
-            }
+            btn.classList.toggle('insufficient-mana', lacksMana);
+
+            const shouldDisable = ability.cooldown > 0 || lacksMana || !playerCanAct;
+            btn.disabled = shouldDisable;
         });
     }
 
