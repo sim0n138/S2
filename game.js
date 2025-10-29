@@ -239,6 +239,22 @@
     }
 
     /**
+     * Safely call a method on the attached game instance if it exists
+     * @param {string} methodName - Name of the game method to invoke
+     * @param {...any} args - Arguments to pass to the method
+     */
+    callGameMethod(methodName, ...args) {
+        if (!this.game || typeof methodName !== 'string') {
+            return;
+        }
+
+        const method = this.game[methodName];
+        if (typeof method === 'function') {
+            method.apply(this.game, args);
+        }
+    }
+
+    /**
      * Apply damage to character, accounting for shields
      * @param {number} damage - Amount of damage to apply
      * @param {boolean} [isCrit=false] - Whether this is a critical hit
@@ -268,7 +284,7 @@
                 return 0;
             } else {
                 remainingDamage -= shieldBuff.absorbAmount;
-                callGameMethod('addLog', `Щит ${this.name} разрушен!`, 'damage');
+                this.callGameMethod('addLog', `Щит ${this.name} разрушен!`, 'damage');
                 this.removeBuff(shieldBuff);
             }
         }
@@ -279,7 +295,7 @@
             const manaToUse = Math.min(remainingDamage, this.mana);
             this.mana -= manaToUse;
             remainingDamage -= manaToUse;
-            callGameMethod('addLog', `${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
+            this.callGameMethod('addLog', `${this.name} поглотил ${manaToUse} урона маной!`, 'buff');
             if (remainingDamage <= 0) return 0;
         }
 
@@ -319,7 +335,7 @@
             return;
         }
         this.buffs.push(buff);
-        callGameMethod('updateBuffs', this);
+        this.callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -334,7 +350,7 @@
         const index = this.buffs.indexOf(buff);
         if (index > -1) {
             this.buffs.splice(index, 1);
-            callGameMethod('updateBuffs', this);
+            this.callGameMethod('updateBuffs', this);
         }
     }
 
@@ -348,7 +364,7 @@
             return;
         }
         this.debuffs.push(debuff);
-        callGameMethod('updateBuffs', this);
+        this.callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -360,7 +376,7 @@
         this.buffs = this.buffs.filter(buff => {
             buff.duration--;
             if (buff.duration <= 0) {
-                callGameMethod('addLog', `${buff.name} на ${this.name} закончился`, 'buff');
+                this.callGameMethod('addLog', `${buff.name} на ${this.name} закончился`, 'buff');
                 return false;
             }
             return true;
@@ -370,8 +386,8 @@
         this.debuffs = this.debuffs.filter(debuff => {
             if (debuff.type === 'dot') {
                 this.takeDamage(debuff.damagePerTick);
-                callGameMethod('addLog', `${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
-                callGameMethod('showDamageNumber', this, debuff.damagePerTick, false);
+                this.callGameMethod('addLog', `${this.name} получает ${debuff.damagePerTick} урона от ${debuff.name}`, 'damage');
+                this.callGameMethod('showDamageNumber', this, debuff.damagePerTick, false);
             }
 
             debuff.duration--;
@@ -381,7 +397,7 @@
             return true;
         });
 
-        callGameMethod('updateBuffs', this);
+        this.callGameMethod('updateBuffs', this);
     }
 
     /**
@@ -1079,17 +1095,15 @@ class Game {
     }
 }
 
-// Initialize game when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new Game();
-});
 // Initialize game when DOM is loaded (browser environment)
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
-        game = new Game();
+        new Game();
     });
 }
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { Character };
 }
+
+})();
