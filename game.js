@@ -989,9 +989,26 @@ class Game {
                 this.enemyTurn();
             }, CONFIG.TURN_DELAY);
         } else {
+            const hasAvailableAbility = this.hasAvailableAbility(this.player);
+
+            if (!hasAvailableAbility) {
+                this.addLog(`${this.player.name} пропускает ход (нет маны или все на КД)!`, 'buff');
+                this.updateTurnIndicator('waiting');
+                setTimeout(() => {
+                    this.enemyTurn();
+                }, CONFIG.TURN_DELAY);
+                return;
+            }
+
             // Player can act - show it's their turn
             this.updateTurnIndicator('player');
         }
+    }
+
+    hasAvailableAbility(character) {
+        return character.abilities.some(ability =>
+            ability.cooldown === 0 && character.mana >= ability.manaCost
+        );
     }
 
     updateCooldowns(character) {
