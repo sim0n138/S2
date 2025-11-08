@@ -35,6 +35,175 @@
         PARTICLE_DURATION: 1000
     };
 
+    const CLASS_LIBRARY = {
+        warrior: {
+            displayName: 'Воин',
+            stats: {
+                maxHp: 1500,
+                maxMana: 100
+            },
+            abilities: [
+                {
+                    id: 'execute',
+                    name: 'Казнь',
+                    icon: '⚔️',
+                    damage: 250,
+                    manaCost: 30,
+                    maxCooldown: 5,
+                    hotkey: '1',
+                    description: 'Мощный удар'
+                },
+                {
+                    id: 'shield_block',
+                    name: 'Блок щитом',
+                    icon: '🛡️',
+                    manaCost: 20,
+                    maxCooldown: 8,
+                    hotkey: '2',
+                    type: 'buff',
+                    buffType: 'shield',
+                    duration: 5,
+                    description: 'Поглощает 300 урона'
+                },
+                {
+                    id: 'whirlwind',
+                    name: 'Вихрь',
+                    icon: '🌪️',
+                    damage: 150,
+                    manaCost: 25,
+                    maxCooldown: 6,
+                    hotkey: '3',
+                    description: 'Вихрь клинков'
+                },
+                {
+                    id: 'charge',
+                    name: 'Рывок',
+                    icon: '💨',
+                    damage: 100,
+                    manaCost: 15,
+                    maxCooldown: 3,
+                    hotkey: '4',
+                    stun: true,
+                    description: 'Оглушает на 1 ход'
+                }
+            ]
+        },
+        mage: {
+            displayName: 'Маг',
+            stats: {
+                maxHp: 800,
+                maxMana: 150
+            },
+            abilities: [
+                {
+                    id: 'fireball',
+                    name: 'Огненный шар',
+                    icon: '🔥',
+                    damage: 300,
+                    manaCost: 40,
+                    maxCooldown: 4,
+                    hotkey: '1',
+                    description: 'Мощное заклинание огня'
+                },
+                {
+                    id: 'frost_nova',
+                    name: 'Ледяная глыба',
+                    icon: '❄️',
+                    damage: 150,
+                    manaCost: 30,
+                    maxCooldown: 7,
+                    hotkey: '2',
+                    freeze: true,
+                    description: 'Замораживает на 2 хода'
+                },
+                {
+                    id: 'arcane_blast',
+                    name: 'Чародейская вспышка',
+                    icon: '✨',
+                    damage: 200,
+                    manaCost: 25,
+                    maxCooldown: 2,
+                    hotkey: '3',
+                    description: 'Быстрое заклинание'
+                },
+                {
+                    id: 'mana_shield',
+                    name: 'Мана-щит',
+                    icon: '🔮',
+                    manaCost: 35,
+                    maxCooldown: 10,
+                    hotkey: '4',
+                    type: 'buff',
+                    buffType: 'manaShield',
+                    duration: 6,
+                    description: 'Мана поглощает урон'
+                }
+            ]
+        },
+        priest: {
+            displayName: 'Жрец',
+            stats: {
+                maxHp: 1000,
+                maxMana: 120
+            },
+            abilities: [
+                {
+                    id: 'smite',
+                    name: 'Кара',
+                    icon: '⚡',
+                    damage: 180,
+                    manaCost: 20,
+                    maxCooldown: 3,
+                    hotkey: '1',
+                    description: 'Святой урон'
+                },
+                {
+                    id: 'heal',
+                    name: 'Исцеление',
+                    icon: '💚',
+                    heal: 400,
+                    manaCost: 35,
+                    maxCooldown: 5,
+                    hotkey: '2',
+                    description: 'Восстанавливает здоровье'
+                },
+                {
+                    id: 'holy_fire',
+                    name: 'Священный огонь',
+                    icon: '🔆',
+                    damage: 220,
+                    manaCost: 30,
+                    maxCooldown: 6,
+                    hotkey: '3',
+                    dot: true,
+                    description: 'Урон со временем'
+                },
+                {
+                    id: 'power_word_shield',
+                    name: 'Слово силы: Щит',
+                    icon: '✝️',
+                    manaCost: 25,
+                    maxCooldown: 8,
+                    hotkey: '4',
+                    type: 'buff',
+                    buffType: 'holyShield',
+                    duration: 8,
+                    description: 'Поглощает 500 урона'
+                }
+            ]
+        }
+    };
+
+    function cloneAbilityTemplate(template) {
+        const ability = JSON.parse(JSON.stringify(template));
+        ability.cooldown = 0;
+        return ability;
+    }
+
+    function getClassDefinition(classId) {
+        return CLASS_LIBRARY[classId] || null;
+    }
+
     /**
      * Represents a character in the game (player or enemy)
      * @class Character
@@ -64,179 +233,33 @@
             this.initializeClass();
         }
 
-    /**
-     * Initialize character stats and abilities based on class
-     * @private
-     */
-    initializeClass() {
-        switch(this.className) {
-            case 'warrior':
-                this.maxHp = 1500;
-                this.hp = 1500;
-                this.abilities = [
-                    {
-                        id: 'execute',
-                        name: 'Казнь',
-                        icon: '⚔️',
-                        damage: 250,
-                        manaCost: 30,
-                        cooldown: 0,
-                        maxCooldown: 5,
-                        hotkey: '1',
-                        description: 'Мощный удар'
-                    },
-                    {
-                        id: 'shield_block',
-                        name: 'Блок щитом',
-                        icon: '🛡️',
-                        manaCost: 20,
-                        cooldown: 0,
-                        maxCooldown: 8,
-                        hotkey: '2',
-                        type: 'buff',
-                        buffType: 'shield',
-                        duration: 5,
-                        description: 'Поглощает 300 урона'
-                    },
-                    {
-                        id: 'whirlwind',
-                        name: 'Вихрь',
-                        icon: '🌪️',
-                        damage: 150,
-                        manaCost: 25,
-                        cooldown: 0,
-                        maxCooldown: 6,
-                        hotkey: '3',
-                        description: 'Вихрь клинков'
-                    },
-                    {
-                        id: 'charge',
-                        name: 'Рывок',
-                        icon: '💨',
-                        damage: 100,
-                        manaCost: 15,
-                        cooldown: 0,
-                        maxCooldown: 3,
-                        hotkey: '4',
-                        stun: true,
-                        description: 'Оглушает на 1 ход'
-                    }
-                ];
-                break;
+        /**
+         * Initialize character stats and abilities based on class
+         * @private
+         */
+        initializeClass() {
+            const definition = getClassDefinition(this.className);
+            if (!definition) {
+                console.warn(`Неизвестный класс: ${this.className}. Используются значения по умолчанию.`);
+                return;
+            }
 
-            case 'mage':
-                this.maxHp = 800;
-                this.hp = 800;
-                this.maxMana = 150;
-                this.mana = 150;
-                this.abilities = [
-                    {
-                        id: 'fireball',
-                        name: 'Огненный шар',
-                        icon: '🔥',
-                        damage: 300,
-                        manaCost: 40,
-                        cooldown: 0,
-                        maxCooldown: 4,
-                        hotkey: '1',
-                        description: 'Мощное заклинание огня'
-                    },
-                    {
-                        id: 'frost_nova',
-                        name: 'Ледяная глыба',
-                        icon: '❄️',
-                        damage: 150,
-                        manaCost: 30,
-                        cooldown: 0,
-                        maxCooldown: 7,
-                        hotkey: '2',
-                        freeze: true,
-                        description: 'Замораживает на 2 хода'
-                    },
-                    {
-                        id: 'arcane_blast',
-                        name: 'Чародейская вспышка',
-                        icon: '✨',
-                        damage: 200,
-                        manaCost: 25,
-                        cooldown: 0,
-                        maxCooldown: 2,
-                        hotkey: '3',
-                        description: 'Быстрое заклинание'
-                    },
-                    {
-                        id: 'mana_shield',
-                        name: 'Мана-щит',
-                        icon: '🔮',
-                        manaCost: 35,
-                        cooldown: 0,
-                        maxCooldown: 10,
-                        hotkey: '4',
-                        type: 'buff',
-                        buffType: 'manaShield',
-                        duration: 6,
-                        description: 'Мана поглощает урон'
-                    }
-                ];
-                break;
+            const { stats, abilities } = definition;
+            if (stats) {
+                if (typeof stats.maxHp === 'number') {
+                    this.maxHp = stats.maxHp;
+                    this.hp = stats.maxHp;
+                }
+                if (typeof stats.maxMana === 'number') {
+                    this.maxMana = stats.maxMana;
+                    this.mana = stats.maxMana;
+                }
+            }
 
-            case 'priest':
-                this.maxHp = 1000;
-                this.hp = 1000;
-                this.maxMana = 120;
-                this.mana = 120;
-                this.abilities = [
-                    {
-                        id: 'smite',
-                        name: 'Кара',
-                        icon: '⚡',
-                        damage: 180,
-                        manaCost: 20,
-                        cooldown: 0,
-                        maxCooldown: 3,
-                        hotkey: '1',
-                        description: 'Святой урон'
-                    },
-                    {
-                        id: 'heal',
-                        name: 'Исцеление',
-                        icon: '💚',
-                        heal: 400,
-                        manaCost: 35,
-                        cooldown: 0,
-                        maxCooldown: 5,
-                        hotkey: '2',
-                        description: 'Восстанавливает здоровье'
-                    },
-                    {
-                        id: 'holy_fire',
-                        name: 'Священный огонь',
-                        icon: '🔆',
-                        damage: 220,
-                        manaCost: 30,
-                        cooldown: 0,
-                        maxCooldown: 6,
-                        hotkey: '3',
-                        dot: true,
-                        description: 'Урон со временем'
-                    },
-                    {
-                        id: 'power_word_shield',
-                        name: 'Слово силы: Щит',
-                        icon: '✝️',
-                        manaCost: 25,
-                        cooldown: 0,
-                        maxCooldown: 8,
-                        hotkey: '4',
-                        type: 'buff',
-                        buffType: 'holyShield',
-                        duration: 8,
-                        description: 'Поглощает 500 урона'
-                    }
-                ];
-                break;
+            this.abilities = Array.isArray(abilities)
+                ? abilities.map(cloneAbilityTemplate)
+                : [];
         }
-    }
 
     /**
      * Safely call a method on the attached game instance if it exists
@@ -564,12 +587,11 @@ class Game {
     }
 
     getClassName(classId) {
-        const names = {
-            'warrior': 'Воин',
-            'mage': 'Маг',
-            'priest': 'Жрец'
-        };
-        return names[classId] || classId;
+        const definition = getClassDefinition(classId);
+        if (definition && definition.displayName) {
+            return definition.displayName;
+        }
+        return classId;
     }
 
     switchScreen(screenName) {
