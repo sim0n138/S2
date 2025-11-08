@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "classes": {
+    "warrior": {
+      "id": "warrior",
+      "displayName": "Воин",
+      "description": "Мастер ближнего боя с высоким запасом здоровья",
+      "icon": "⚔️",
+      "stats": {
+        "maxHp": 1500,
+        "maxMana": 100
+      },
+      "startingCards": [
+        "execute",
+        "shield_block",
+        "whirlwind",
+        "charge"
+      ]
+    },
+    "mage": {
+      "id": "mage",
+      "displayName": "Маг",
+      "description": "Повелитель магии с огромным уроном",
+      "icon": "🔮",
+      "stats": {
+        "maxHp": 800,
+        "maxMana": 150
+      },
+      "startingCards": [
+        "fireball",
+        "ice_block",
+        "arcane_blast",
+        "mana_shield"
+      ]
+    },
+    "priest": {
+      "id": "priest",
+      "displayName": "Жрец",
+      "description": "Целитель и защитник",
+      "icon": "✨",
+      "stats": {
+        "maxHp": 1000,
+        "maxMana": 120
+      },
+      "startingCards": [
+        "smite",
+        "heal",
+        "holy_fire",
+        "power_word_shield"
+      ]
+    }
+  }
+}

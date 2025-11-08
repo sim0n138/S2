@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Class Definition Schema",
+  "type": "object",
+  "required": ["version", "classes"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "classes": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["id", "displayName", "stats", "startingCards"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "displayName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "stats": {
+              "type": "object",
+              "required": ["maxHp", "maxMana"],
+              "properties": {
+                "maxHp": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "maxMana": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "startingCards": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

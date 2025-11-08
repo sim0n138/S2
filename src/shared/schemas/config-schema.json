@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Game Configuration Schema",
+  "type": "object",
+  "required": ["version", "battlefield", "combat", "ui"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "battlefield": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 10
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 10
+        }
+      }
+    },
+    "combat": {
+      "type": "object",
+      "required": ["critChance", "critMultiplier", "manaRegenPerTurn"],
+      "properties": {
+        "critChance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "critMultiplier": {
+          "type": "number",
+          "minimum": 1
+        },
+        "manaRegenPerTurn": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxTurnsWithoutDamage": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "combatLogMaxEntries": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "turnDelay": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

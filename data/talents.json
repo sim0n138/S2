@@ -1,0 +1,146 @@
+{
+  "version": "1.0.0",
+  "talents": {
+    "warrior": {
+      "left": [
+        {
+          "id": "warrior_damage_1",
+          "name": "Усиление атаки I",
+          "description": "+10% к урону",
+          "icon": "⚔️",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "damageModifier",
+              "multiplier": 1.1
+            }
+          ]
+        },
+        {
+          "id": "warrior_hp_1",
+          "name": "Закалка I",
+          "description": "+100 к максимальному HP",
+          "icon": "❤️",
+          "tier": 2,
+          "position": 0,
+          "requirements": ["warrior_damage_1"],
+          "effects": [
+            {
+              "type": "statModifier",
+              "stat": "maxHp",
+              "value": 100
+            }
+          ]
+        }
+      ],
+      "right": [
+        {
+          "id": "warrior_defense_1",
+          "name": "Укрепление щита I",
+          "description": "Щиты поглощают на 50 единиц больше",
+          "icon": "🛡️",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "shieldModifier",
+              "bonus": 50
+            }
+          ]
+        },
+        {
+          "id": "warrior_mana_1",
+          "name": "Ярость берсерка I",
+          "description": "+20 к максимальной мане",
+          "icon": "💙",
+          "tier": 2,
+          "position": 0,
+          "requirements": ["warrior_defense_1"],
+          "effects": [
+            {
+              "type": "statModifier",
+              "stat": "maxMana",
+              "value": 20
+            }
+          ]
+        }
+      ]
+    },
+    "mage": {
+      "left": [
+        {
+          "id": "mage_spell_power_1",
+          "name": "Сила заклинаний I",
+          "description": "+15% к урону от заклинаний",
+          "icon": "🔮",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "damageModifier",
+              "multiplier": 1.15
+            }
+          ]
+        }
+      ],
+      "right": [
+        {
+          "id": "mage_mana_1",
+          "name": "Манапул I",
+          "description": "+30 к максимальной мане",
+          "icon": "💙",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "statModifier",
+              "stat": "maxMana",
+              "value": 30
+            }
+          ]
+        }
+      ]
+    },
+    "priest": {
+      "left": [
+        {
+          "id": "priest_holy_1",
+          "name": "Священная сила I",
+          "description": "+20% к исцелению",
+          "icon": "✨",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "healModifier",
+              "multiplier": 1.2
+            }
+          ]
+        }
+      ],
+      "right": [
+        {
+          "id": "priest_shadow_1",
+          "name": "Сила тьмы I",
+          "description": "+10% к урону",
+          "icon": "🌑",
+          "tier": 1,
+          "position": 0,
+          "requirements": [],
+          "effects": [
+            {
+              "type": "damageModifier",
+              "multiplier": 1.1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Card Definition Schema",
+  "type": "object",
+  "required": ["version", "cards"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "cards": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z_]+$": {
+          "type": "object",
+          "required": ["id", "name", "cost", "targeting", "effects"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "cost": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cooldown": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rarity": {
+              "type": "string",
+              "enum": ["common", "rare", "epic", "legendary"]
+            },
+            "class": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "targeting": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["self", "single", "line", "aoe", "cone"]
+                },
+                "range": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "requiresEnemy": {
+                  "type": "boolean"
+                },
+                "requiresFriendly": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "effects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["damage", "heal", "shield", "manaShield", "stun", "freeze", "dot", "hot", "summon"]
+                  },
+                  "amount": {
+                    "type": "integer"
+                  },
+                  "duration": {
+                    "type": "integer"
+                  },
+                  "damagePerTick": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "minItems": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}
