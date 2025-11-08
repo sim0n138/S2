@@ -12,12 +12,16 @@
     "build": "echo 'No build step required for now'",
     "start": "npm run dev"
   },
-  "keywords": ["ccg", "card-game", "turn-based", "multiplayer"],
+  "keywords": [
+    "ccg",
+    "card-game",
+    "turn-based",
+    "multiplayer"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "ws": "^8.16.0"
-  },
-  "devDependencies": {}
+    "ws": "^8.18.3"
+  }
 }
