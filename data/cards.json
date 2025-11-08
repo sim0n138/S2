@@ -1,0 +1,268 @@
+{
+  "version": "1.0.0",
+  "cards": {
+    "execute": {
+      "id": "execute",
+      "name": "Казнь",
+      "icon": "⚔️",
+      "cost": 30,
+      "cooldown": 5,
+      "rarity": "common",
+      "class": "warrior",
+      "description": "Мощный удар",
+      "targeting": {
+        "type": "single",
+        "range": 1,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 250
+        }
+      ]
+    },
+    "shield_block": {
+      "id": "shield_block",
+      "name": "Блок щитом",
+      "icon": "🛡️",
+      "cost": 20,
+      "cooldown": 8,
+      "rarity": "common",
+      "class": "warrior",
+      "description": "Поглощает урон",
+      "targeting": {
+        "type": "self"
+      },
+      "effects": [
+        {
+          "type": "shield",
+          "amount": 300,
+          "duration": 5
+        }
+      ]
+    },
+    "whirlwind": {
+      "id": "whirlwind",
+      "name": "Вихрь",
+      "icon": "🌪️",
+      "cost": 25,
+      "cooldown": 6,
+      "rarity": "common",
+      "class": "warrior",
+      "description": "Вихрь клинков",
+      "targeting": {
+        "type": "single",
+        "range": 1,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 150
+        }
+      ]
+    },
+    "charge": {
+      "id": "charge",
+      "name": "Рывок",
+      "icon": "💨",
+      "cost": 15,
+      "cooldown": 3,
+      "rarity": "common",
+      "class": "warrior",
+      "description": "Оглушает врага",
+      "targeting": {
+        "type": "single",
+        "range": 1,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 100
+        },
+        {
+          "type": "stun",
+          "duration": 1
+        }
+      ]
+    },
+    "fireball": {
+      "id": "fireball",
+      "name": "Огненный шар",
+      "icon": "🔥",
+      "cost": 40,
+      "cooldown": 4,
+      "rarity": "common",
+      "class": "mage",
+      "description": "Мощное заклинание огня",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 300
+        }
+      ]
+    },
+    "ice_block": {
+      "id": "ice_block",
+      "name": "Ледяная глыба",
+      "icon": "🧊",
+      "cost": 30,
+      "cooldown": 7,
+      "rarity": "common",
+      "class": "mage",
+      "description": "Замораживает врага",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 150
+        },
+        {
+          "type": "freeze",
+          "duration": 2
+        }
+      ]
+    },
+    "arcane_blast": {
+      "id": "arcane_blast",
+      "name": "Чародейская вспышка",
+      "icon": "✨",
+      "cost": 25,
+      "cooldown": 2,
+      "rarity": "common",
+      "class": "mage",
+      "description": "Быстрое заклинание",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 200
+        }
+      ]
+    },
+    "mana_shield": {
+      "id": "mana_shield",
+      "name": "Мана-щит",
+      "icon": "🔮",
+      "cost": 35,
+      "cooldown": 10,
+      "rarity": "rare",
+      "class": "mage",
+      "description": "Мана поглощает урон",
+      "targeting": {
+        "type": "self"
+      },
+      "effects": [
+        {
+          "type": "manaShield",
+          "duration": 6
+        }
+      ]
+    },
+    "smite": {
+      "id": "smite",
+      "name": "Кара",
+      "icon": "⚡",
+      "cost": 20,
+      "cooldown": 3,
+      "rarity": "common",
+      "class": "priest",
+      "description": "Святой урон",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 180
+        }
+      ]
+    },
+    "heal": {
+      "id": "heal",
+      "name": "Исцеление",
+      "icon": "💚",
+      "cost": 35,
+      "cooldown": 5,
+      "rarity": "common",
+      "class": "priest",
+      "description": "Восстанавливает здоровье",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresFriendly": true
+      },
+      "effects": [
+        {
+          "type": "heal",
+          "amount": 400
+        }
+      ]
+    },
+    "holy_fire": {
+      "id": "holy_fire",
+      "name": "Священный огонь",
+      "icon": "🔥",
+      "cost": 30,
+      "cooldown": 6,
+      "rarity": "common",
+      "class": "priest",
+      "description": "Урон с горением",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresEnemy": true
+      },
+      "effects": [
+        {
+          "type": "damage",
+          "amount": 220
+        },
+        {
+          "type": "dot",
+          "damagePerTick": 50,
+          "duration": 4
+        }
+      ]
+    },
+    "power_word_shield": {
+      "id": "power_word_shield",
+      "name": "Слово силы: Щит",
+      "icon": "🛡️",
+      "cost": 25,
+      "cooldown": 8,
+      "rarity": "common",
+      "class": "priest",
+      "description": "Мощный щит",
+      "targeting": {
+        "type": "single",
+        "range": 3,
+        "requiresFriendly": true
+      },
+      "effects": [
+        {
+          "type": "shield",
+          "amount": 500,
+          "duration": 8
+        }
+      ]
+    }
+  }
+}

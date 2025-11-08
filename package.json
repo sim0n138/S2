@@ -1,13 +1,23 @@
 {
   "name": "s2",
   "version": "1.0.0",
-  "description": "Пиксельная дуэльная игра в стиле World of Warcraft с пошаговыми сражениями, системой способностей и AI противником.",
+  "description": "Онлайн дуэльная CCG с полем, ветками умений, орбами ресурсов и рукой карт.",
   "main": "game.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test tests/**/*.test.js",
+    "test:combat": "node --test tests/combat/**/*.test.js",
+    "dev:client": "echo 'Open index.html in browser for client' && python3 -m http.server 8080 || python -m http.server 8080",
+    "dev:server": "node src/server/server.js",
+    "dev": "npm run dev:client & npm run dev:server",
+    "build": "echo 'No build step required for now'",
+    "start": "npm run dev"
   },
-  "keywords": [],
+  "keywords": ["ccg", "card-game", "turn-based", "multiplayer"],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {}
 }

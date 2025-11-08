@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "battlefield": {
+    "width": 4,
+    "height": 3,
+    "alternativeWidth": 5,
+    "alternativeHeight": 3
+  },
+  "combat": {
+    "critChance": 0.25,
+    "critMultiplier": 1.5,
+    "manaRegenPerTurn": 10,
+    "maxTurnsWithoutDamage": 10
+  },
+  "shields": {
+    "warriorShieldAbsorb": 300,
+    "priestShieldAbsorb": 500
+  },
+  "effects": {
+    "dotDamagePerTick": 50,
+    "dotDuration": 4,
+    "stunDuration": 1,
+    "freezeDuration": 2
+  },
+  "cards": {
+    "startingHandSize": 5,
+    "maxHandSize": 10,
+    "drawPerTurn": 1
+  },
+  "ui": {
+    "combatLogMaxEntries": 50,
+    "turnDelay": 1000,
+    "endBattleDelay": 2000,
+    "attackAnimationDuration": 300,
+    "damageNumberDuration": 1000,
+    "particleDuration": 1000
+  },
+  "server": {
+    "port": 3000,
+    "turnTimeout": 60000,
+    "reconnectWindow": 300000,
+    "maxMessageSize": 65536
+  }
+}
